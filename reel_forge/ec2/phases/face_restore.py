@@ -118,7 +118,7 @@ def _restore_video(src: Path, dst: Path, tmp_dir: Path) -> dict[str, Any]:
     alpha-blend + sharpness gate + temporal-stable noise, re-encode to
     dst. Returns stats dict.
     """
-    import cv2  # type: ignore[import-not-found]
+    import cv2
 
     frames_dir = tmp_dir / "frames"
     frames_dir.mkdir(parents=True, exist_ok=True)
