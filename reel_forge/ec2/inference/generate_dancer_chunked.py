@@ -48,7 +48,7 @@ The resulting pose discontinuity at chunk boundaries is mitigated
 downstream by the interp phase's `minterpolate` motion-bridging.
 
 Usage:
-  python -m insta_influencer.ec2.inference.generate_dancer_chunked <spec.json>
+  python -m reel_forge.ec2.inference.generate_dancer_chunked <spec.json>
 
 Runs under PYTHONPATH=/opt/insta-influencer/third_party/SteadyDancer so
 `import wan` resolves to the upstream repo. Caller sets that env var.

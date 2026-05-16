@@ -138,7 +138,7 @@ Steps the user-data script performs before invoking the orchestrator:
 11. Diagnostic check: each runtime import prints `[ok]` or `[FAIL]` to
     the cloud-init log so dep issues surface immediately rather than
     after a 90-minute animate phase.
-12. Exec `python -m insta_influencer.ec2.orchestrator process-job
+12. Exec `python -m reel_forge.ec2.orchestrator process-job
     <job_id>`.
 
 Re-baking the AMI to include these would eliminate ~7-10 minutes per

@@ -1,7 +1,7 @@
 """classify() coverage for known classes + unknown."""
 from __future__ import annotations
 
-from insta_influencer.core.errors import (
+from reel_forge.core.errors import (
     ErrorClass,
     ModelOOM,
     PhotoInvalid,

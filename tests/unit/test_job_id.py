@@ -1,7 +1,7 @@
 """Content-addressed job id contract."""
 from __future__ import annotations
 
-from insta_influencer.prepare.job_id import JOB_ID_SCHEMA_VERSION, derive_job_id
+from reel_forge.prepare.job_id import JOB_ID_SCHEMA_VERSION, derive_job_id
 
 
 def _kw(**overrides: object) -> dict[str, object]:

@@ -1,4 +1,4 @@
-"""`insta cancel` — write cancel marker to S3 and update local status."""
+"""`forge cancel` — write cancel marker to S3 and update local status."""
 from __future__ import annotations
 
 import click

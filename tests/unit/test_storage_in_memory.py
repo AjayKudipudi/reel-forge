@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from insta_influencer.core.storage import InMemoryObjectStore
+from reel_forge.core.storage import InMemoryObjectStore
 
 
 def test_roundtrip(tmp_path: Path) -> None:

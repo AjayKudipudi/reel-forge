@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from insta_influencer.config import Config, load_config
+from reel_forge.config import Config, load_config
 
 
 def test_load_with_min_env() -> None:

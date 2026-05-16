@@ -10,7 +10,7 @@ repos:
     rev: v1.10.0
     hooks:
       - id: mypy
-        files: ^insta_influencer/
+        files: ^reel_forge/
         additional_dependencies:
           - pydantic>=2.7
           - pydantic-settings>=2.2

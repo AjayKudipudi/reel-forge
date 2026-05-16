@@ -31,7 +31,7 @@ Designed for a single operator running dance-content Reels at scale without rent
 
 A thin local CLI on your laptop builds a job manifest and uploads inputs to S3. It then launches a pre-baked EC2 spot AMI that contains the model weights and inference code. The instance pulls the manifest, runs the pipeline (pose → animate → interp → restore → mux audio), writes the output back to S3, and self-terminates. The CLI downloads the result. All state lives in S3 so jobs survive spot interruptions and laptop reboots.
 
-See `AI_context/00_overview.md` and `AI_context/02_implementation_plan.md` for the full design.
+See `docs/00_overview.md` and `docs/02_implementation_plan.md` for the full design.
 
 ---
 
@@ -59,10 +59,10 @@ pytest                  # run unit + contract tests (smoke tests excluded)
 
 ```bash
 export STORAGE_BACKEND=local ANIMATE_FAKE=1
-python -m insta_influencer prepare \
+python -m reel_forge prepare \
     --video tests/fixtures/sample.mp4 \
     --photo tests/fixtures/jane.png
-python -m insta_influencer generate
+python -m reel_forge generate
 ```
 
 ### Full pipeline on AWS
@@ -98,7 +98,7 @@ insta stats      aggregate cost + runtime per job
 
 ## Configuration
 
-All knobs are env vars loaded by pydantic-settings (see `insta_influencer/config.py`). The full schema with comments is in `.env.example`. Key categories:
+All knobs are env vars loaded by pydantic-settings (see `reel_forge/config.py`). The full schema with comments is in `.env.example`. Key categories:
 
 - AWS infra (region, S3 bucket, EC2 AMI/instance type, spot pricing)
 - Storage backend (`s3` for prod, `local` for dev)
@@ -111,7 +111,7 @@ All knobs are env vars loaded by pydantic-settings (see `insta_influencer/config
 
 ## Roadmap & known limitations
 
-See `AI_context/` for the working design docs and open items. Highlights:
+See `docs/` for the working design docs and open items. Highlights:
 
 - Currently single-GPU, single-job at a time. Batching across one spot launch is on the roadmap.
 - Auto-posting to Instagram via Graph API is gated behind phase F; manual upload is the default.

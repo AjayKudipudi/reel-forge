@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from insta_influencer.core.errors import ErrorClass, ToolFailed
-from insta_influencer.core.external_tool import ToolSpec, run_tool
+from reel_forge.core.errors import ErrorClass, ToolFailed
+from reel_forge.core.external_tool import ToolSpec, run_tool
 
 
 def test_run_tool_happy_path() -> None:

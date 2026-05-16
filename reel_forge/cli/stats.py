@@ -1,4 +1,4 @@
-"""`insta stats` — cost aggregation by month."""
+"""`forge stats` — cost aggregation by month."""
 from __future__ import annotations
 
 from datetime import UTC, datetime

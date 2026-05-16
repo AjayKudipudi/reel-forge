@@ -1,12 +1,12 @@
 """Every phase class implements the Phase Protocol."""
 from __future__ import annotations
 
-from insta_influencer.core.phase import Phase
-from insta_influencer.ec2.phases.animate import AnimatePhase
-from insta_influencer.ec2.phases.audio_attach import AudioAttachPhase
-from insta_influencer.ec2.phases.interp import InterpPhase
-from insta_influencer.ec2.phases.pose_extract import PoseExtractPhase
-from insta_influencer.ec2.phases.reels_format import ReelsFormatPhase
+from reel_forge.core.phase import Phase
+from reel_forge.ec2.phases.animate import AnimatePhase
+from reel_forge.ec2.phases.audio_attach import AudioAttachPhase
+from reel_forge.ec2.phases.interp import InterpPhase
+from reel_forge.ec2.phases.pose_extract import PoseExtractPhase
+from reel_forge.ec2.phases.reels_format import ReelsFormatPhase
 
 
 def test_all_phases_satisfy_protocol() -> None:

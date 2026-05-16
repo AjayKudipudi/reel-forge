@@ -229,7 +229,7 @@ fi
 # we MUST reach the terminate-instances call below even on failure, or the
 # spot lingers and burns money.
 set +e
-python -m insta_influencer.ec2.orchestrator process-pending
+python -m reel_forge.ec2.orchestrator process-pending
 EXIT=$?
 set -e
 
@@ -246,7 +246,7 @@ INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \\
 # Debug-hold mechanism. When {keep_alive_on_failure} is "1" AND the
 # pipeline exited non-zero, sleep here for {keep_alive_seconds}s instead
 # of terminating. Operator can SSH in (SG must allow port 22), fix the
-# issue interactively, and run `python -m insta_influencer.ec2.orchestrator
+# issue interactively, and run `python -m reel_forge.ec2.orchestrator
 # process-job <job_id>` to retry. After the hold window expires the
 # instance terminates as usual.
 if [ "{keep_alive_on_failure}" = "1" ] && [ "$EXIT" != "0" ]; then

@@ -1,4 +1,4 @@
-"""`insta generate` — upload prepared jobs and launch a spot batch."""
+"""`forge generate` — upload prepared jobs and launch a spot batch."""
 from __future__ import annotations
 
 import sys

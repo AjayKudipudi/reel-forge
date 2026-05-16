@@ -1,4 +1,4 @@
-"""`python -m insta_influencer ...` entry point — Click group."""
+"""`python -m reel_forge ...` entry point — Click group."""
 from __future__ import annotations
 
 import click

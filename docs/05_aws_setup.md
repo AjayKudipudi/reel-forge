@@ -245,7 +245,7 @@ the spot sleeps before termination. The operator can:
 ```bash
 ssh -i <key> ubuntu@<public-ip>
 # fix the issue, e.g. patch a phase
-python -m insta_influencer.ec2.orchestrator process-job <job_id>
+python -m reel_forge.ec2.orchestrator process-job <job_id>
 ```
 
 This is the right default for any infrastructure-change run.
@@ -284,7 +284,7 @@ This is the right default for any infrastructure-change run.
 7. Set `HF_TOKEN` in `.env` (read-only token is sufficient).
    Accept the SteadyDancer-14B and Wan-AI/Wan2.1-I2V-14B-480P model
    card terms on HuggingFace.
-8. Run `python -m insta_influencer.ec2.setup_ami` to bake the AMI.
+8. Run `python -m reel_forge.ec2.setup_ami` to bake the AMI.
    Wait ~75-90 min.
 9. `setup_ami.py` writes the AMI id to `.env` on success.
 10. Run a smoke `generate` job. See §5.1 for cost expectations.

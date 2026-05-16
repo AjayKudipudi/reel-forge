@@ -8,9 +8,9 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from insta_influencer.ec2.models._base import AnimationModel
-from insta_influencer.ec2.models.factory import get_animation_model
-from insta_influencer.ec2.models.fake import FakeAnimationModel
+from reel_forge.ec2.models._base import AnimationModel
+from reel_forge.ec2.models.factory import get_animation_model
+from reel_forge.ec2.models.fake import FakeAnimationModel
 
 
 def test_fake_model_satisfies_protocol() -> None:
@@ -61,7 +61,7 @@ def test_real_steadydancer_protocol() -> None:
         pytest.skip("torch not installed")
     from typing import cast
 
-    from insta_influencer.ec2.models.steadydancer import SteadyDancerModel
+    from reel_forge.ec2.models.steadydancer import SteadyDancerModel
 
     m = cast(AnimationModel, SteadyDancerModel())
     assert isinstance(m, AnimationModel)

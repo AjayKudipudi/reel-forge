@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from insta_influencer.core.errors import ErrorClass
-from insta_influencer.core.result import PhaseResult
+from reel_forge.core.errors import ErrorClass
+from reel_forge.core.result import PhaseResult
 
 
 def test_ok_roundtrip() -> None:

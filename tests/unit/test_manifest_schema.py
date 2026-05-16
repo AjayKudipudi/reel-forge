@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from insta_influencer.core.manifest import (
+from reel_forge.core.manifest import (
     BackgroundFromPhoto,
     BackgroundReplace,
     Manifest,

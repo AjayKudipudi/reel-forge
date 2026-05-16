@@ -1,4 +1,4 @@
-"""`insta logs` — fetch log file from S3 (or local) and print."""
+"""`forge logs` — fetch log file from S3 (or local) and print."""
 from __future__ import annotations
 
 import sys

@@ -97,7 +97,7 @@ else
 
 AI dance video generator for Instagram Reels using SteadyDancer-14B
 (image-to-video), Practical-RIFE (frame interpolation), GFPGAN (face
-restoration), and AWS spot GPUs. See AI_context/ for architecture, settings
+restoration), and AWS spot GPUs. See docs/ for architecture, settings
 audit, findings, and bug history."
 fi
 

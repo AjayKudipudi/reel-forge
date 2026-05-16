@@ -58,13 +58,13 @@ dev = [
 ]
 
 [project.scripts]
-insta = "insta_influencer.__main__:main"
+forge = "reel_forge.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["insta_influencer*"]
+include = ["reel_forge*"]
 
 [tool.setuptools.package-data]
-insta_influencer = ["data/prompts/*.txt"]
+reel_forge = ["data/prompts/*.txt"]
 
 [tool.ruff]
 line-length = 100
@@ -73,6 +73,9 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "S", "RUF"]
 ignore = [
+    "E501",  # long lines often live inside shell heredoc templates (cloud-init)
+    "RUF002",  # × multiplication sign in docstrings is intentional (paper notation)
+    "RUF003",  # × multiplication sign in comments is intentional
     "S101",  # asserts allowed in our code
     "S603",  # subprocess without shell=True is fine; we wrap in run_tool
     "S607",  # ditto, partial path

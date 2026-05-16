@@ -6,21 +6,21 @@ from pathlib import Path
 
 import structlog
 
-from insta_influencer.config import get_config
-from insta_influencer.core import keys as K
-from insta_influencer.core.manifest import (
+from reel_forge.config import get_config
+from reel_forge.core import keys as K
+from reel_forge.core.manifest import (
     BackgroundFromPhoto,
     Manifest,
     ModelConfig,
     OutputSpec,
     ReferenceLocal,
 )
-from insta_influencer.core.result import PhaseContext
-from insta_influencer.core.seed import seed_everything
-from insta_influencer.core.status import State, StatusManager
-from insta_influencer.core.storage import get_object_store
-from insta_influencer.ec2.phases.animate import AnimatePhase
-from insta_influencer.ec2.phases.pose_extract import PoseExtractPhase
+from reel_forge.core.result import PhaseContext
+from reel_forge.core.seed import seed_everything
+from reel_forge.core.status import State, StatusManager
+from reel_forge.core.storage import get_object_store
+from reel_forge.ec2.phases.animate import AnimatePhase
+from reel_forge.ec2.phases.pose_extract import PoseExtractPhase
 
 log = structlog.get_logger(__name__)
 
@@ -30,7 +30,7 @@ def test_phase_marker_skips_recompute(
     sample_photo: Path,
     sample_video: Path,
 ) -> None:
-    from insta_influencer.prepare.photo_prep import prepare_photo
+    from reel_forge.prepare.photo_prep import prepare_photo
 
     cfg = get_config()
     work = tmp_path / "work"

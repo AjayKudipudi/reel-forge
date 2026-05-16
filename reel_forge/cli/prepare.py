@@ -1,4 +1,4 @@
-"""`insta prepare` — build a job manifest from a Reel URL or local mp4."""
+"""`forge prepare` — build a job manifest from a Reel URL or local mp4."""
 from __future__ import annotations
 
 import sys

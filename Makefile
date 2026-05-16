@@ -11,14 +11,14 @@ test:
 	pytest tests/unit tests/contract tests/integration
 
 lint:
-	ruff check insta_influencer tests
+	ruff check reel_forge tests
 
 type:
-	mypy insta_influencer
+	mypy reel_forge
 
 fmt:
-	ruff check --fix insta_influencer tests
-	ruff format insta_influencer tests
+	ruff check --fix reel_forge tests
+	ruff format reel_forge tests
 
 smoke:
 	pytest -m smoke tests/smoke

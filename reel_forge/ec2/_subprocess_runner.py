@@ -1,7 +1,7 @@
 """Run a Phase in a fresh subprocess.
 
 IPC contract — parent → child:
-  - argv: [python, -u, -m, insta_influencer.ec2._subprocess_runner, <phase_qualname>]
+  - argv: [python, -u, -m, reel_forge.ec2._subprocess_runner, <phase_qualname>]
   - env:  parent's env + Config.to_subprocess_dict() + INSTA_JOB_ID + PYTHONUNBUFFERED=1
   - stdin: a small JSON payload — { job_id, work_dir, s3_prefix } only.
 
@@ -113,7 +113,7 @@ def run_phase_in_subprocess(
                 sys.executable,
                 "-u",
                 "-m",
-                "insta_influencer.ec2._subprocess_runner",
+                "reel_forge.ec2._subprocess_runner",
                 _phase_qualname(phase),
             ],
             stdin=subprocess.PIPE,
@@ -192,7 +192,7 @@ def run_phase_in_subprocess(
 
 
 def child_main() -> int:
-    """Entry: `python -m insta_influencer.ec2._subprocess_runner <phase_qualname>`."""
+    """Entry: `python -m reel_forge.ec2._subprocess_runner <phase_qualname>`."""
     if len(sys.argv) < 2:
         sys.stderr.write("usage: _subprocess_runner <phase_qualname>\n")
         return 2

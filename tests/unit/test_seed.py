@@ -5,7 +5,7 @@ import random
 
 import numpy as np
 
-from insta_influencer.core.seed import seed_everything
+from reel_forge.core.seed import seed_everything
 
 
 def test_seed_python() -> None:

@@ -9,23 +9,23 @@ from pathlib import Path
 
 import structlog
 
-from insta_influencer.config import get_config
-from insta_influencer.core import keys as K
-from insta_influencer.core.manifest import (
+from reel_forge.config import get_config
+from reel_forge.core import keys as K
+from reel_forge.core.manifest import (
     BackgroundFromPhoto,
     Manifest,
     ModelConfig,
     OutputSpec,
     ReferenceLocal,
 )
-from insta_influencer.core.result import PhaseContext
-from insta_influencer.core.seed import seed_everything
-from insta_influencer.core.status import State, StatusManager
-from insta_influencer.core.storage import get_object_store
-from insta_influencer.ec2.phases.animate import AnimatePhase
-from insta_influencer.ec2.phases.audio_attach import AudioAttachPhase
-from insta_influencer.ec2.phases.pose_extract import PoseExtractPhase
-from insta_influencer.ec2.phases.reels_format import ReelsFormatPhase
+from reel_forge.core.result import PhaseContext
+from reel_forge.core.seed import seed_everything
+from reel_forge.core.status import State, StatusManager
+from reel_forge.core.storage import get_object_store
+from reel_forge.ec2.phases.animate import AnimatePhase
+from reel_forge.ec2.phases.audio_attach import AudioAttachPhase
+from reel_forge.ec2.phases.pose_extract import PoseExtractPhase
+from reel_forge.ec2.phases.reels_format import ReelsFormatPhase
 
 log = structlog.get_logger(__name__)
 
@@ -59,7 +59,7 @@ def test_full_pipeline_with_fakes(
     work = tmp_path / "work"
     work.mkdir()
     # Resize photo to SteadyDancer's reference dims so AnimatePhase keeps it.
-    from insta_influencer.prepare.photo_prep import prepare_photo
+    from reel_forge.prepare.photo_prep import prepare_photo
     prepared = prepare_photo(sample_photo, out_path=work / K.PHOTO)
     # Stage reference video into the work dir under canonical name.
     (work / K.REFERENCE_VIDEO).write_bytes(sample_video.read_bytes())
@@ -112,7 +112,7 @@ def test_seed_determinism(
     sample_video: Path,
 ) -> None:
     """Two runs with same seed produce identical animated.mp4."""
-    from insta_influencer.prepare.photo_prep import prepare_photo
+    from reel_forge.prepare.photo_prep import prepare_photo
 
     cfg = get_config()
     sizes: list[int] = []

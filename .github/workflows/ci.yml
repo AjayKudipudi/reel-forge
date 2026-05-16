@@ -15,9 +15,9 @@ jobs:
           cache: pip
       - run: pip install -e .[dev]
       - name: ruff
-        run: ruff check insta_influencer tests
+        run: ruff check reel_forge tests
       - name: mypy
-        run: mypy insta_influencer
+        run: mypy reel_forge
       - name: pytest
         run: pytest tests/unit tests/contract tests/integration -q
         env:

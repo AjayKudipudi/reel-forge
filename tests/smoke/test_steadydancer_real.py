@@ -22,7 +22,7 @@ def test_real_steadydancer_one_clip() -> None:
     # Click invocation: simulate `insta-smoke --num-frames 33`
     from click.testing import CliRunner
 
-    from insta_influencer.ec2.smoke_test import smoke
+    from reel_forge.ec2.smoke_test import smoke
 
     runner = CliRunner()
     result = runner.invoke(smoke, ["--num-frames", "33"])

@@ -27,7 +27,7 @@ def _set_required_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Iterab
     monkeypatch.setenv("LOG_DIR", str(tmp_path / "logs"))
     monkeypatch.setenv("EC2_WORK_DIR", str(tmp_path / "ec2_work"))
     # Reset the module-level cached config so each test gets a fresh one.
-    import insta_influencer.config as cfg_mod
+    import reel_forge.config as cfg_mod
     cfg_mod._cached = None
     yield
     cfg_mod._cached = None
@@ -35,7 +35,7 @@ def _set_required_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Iterab
 
 @pytest.fixture
 def in_memory_store() -> InMemoryObjectStore:  # noqa: F821
-    from insta_influencer.core.storage import InMemoryObjectStore
+    from reel_forge.core.storage import InMemoryObjectStore
     return InMemoryObjectStore()
 
 
@@ -68,7 +68,7 @@ def now_utc() -> datetime:
     return datetime.now(UTC)
 
 
-# Convenience: path adjustments so `python -m insta_influencer` resolves in tests.
+# Convenience: path adjustments so `python -m reel_forge` resolves in tests.
 @pytest.fixture(autouse=True)
 def _ensure_pkg_importable() -> Iterable[None]:
     repo = Path(__file__).resolve().parents[1]

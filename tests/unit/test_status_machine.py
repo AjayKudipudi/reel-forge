@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from insta_influencer.core.errors import IllegalTransition
-from insta_influencer.core.status import TRANSITIONS, State, StatusManager
-from insta_influencer.core.storage import InMemoryObjectStore
+from reel_forge.core.errors import IllegalTransition
+from reel_forge.core.status import TRANSITIONS, State, StatusManager
+from reel_forge.core.storage import InMemoryObjectStore
 
 
 def _build(tmp_path: Path) -> StatusManager:

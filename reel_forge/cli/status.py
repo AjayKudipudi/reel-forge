@@ -1,4 +1,4 @@
-"""`insta status` — table view of jobs and their state."""
+"""`forge status` — table view of jobs and their state."""
 from __future__ import annotations
 
 import json

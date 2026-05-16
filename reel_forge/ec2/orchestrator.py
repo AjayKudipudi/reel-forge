@@ -282,7 +282,7 @@ def process_job(job_id: str) -> int:
 
 @click.group()
 def cli() -> None:
-    """`python -m insta_influencer.ec2.orchestrator ...`"""
+    """`python -m reel_forge.ec2.orchestrator ...`"""
 
 
 @cli.command("process-job")

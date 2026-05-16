@@ -12,9 +12,9 @@ Expects the following AWS resources to already exist (set in `.env`):
 - `EC2_IAM_INSTANCE_PROFILE` IAM instance profile with S3 + EC2 permissions
 
 Usage:
-    python -m insta_influencer.ec2.setup_ami              # full bake
-    python -m insta_influencer.ec2.setup_ami --smoke-only  # stop after smoke
-    python -m insta_influencer.ec2.setup_ami --bake-ami i-...   # capture from smoke-passed instance
+    python -m reel_forge.ec2.setup_ami              # full bake
+    python -m reel_forge.ec2.setup_ami --smoke-only  # stop after smoke
+    python -m reel_forge.ec2.setup_ami --bake-ami i-...   # capture from smoke-passed instance
 """
 from __future__ import annotations
 
@@ -72,7 +72,7 @@ def package_source(out_path: Path) -> Path:
 
     with tarfile.open(out_path, "w:gz") as tar:
         for name in (
-            "insta_influencer",
+            "reel_forge",
             "tests",
             "pyproject.toml",
             "README.md",
@@ -410,7 +410,7 @@ echo "=== running smoke ==="
 export STORAGE_BACKEND=local ANIMATE_FAKE=0 INSTA_SPOT_WATCH=0 PYTORCH_JIT=0
 mkdir -p /opt/insta-influencer/volumes/output/batch /opt/insta-influencer/volumes/store \
          /opt/insta-influencer/volumes/logs /opt/insta-influencer/volumes/assets
-if python -m insta_influencer.ec2.smoke_test --num-frames 33; then
+if python -m reel_forge.ec2.smoke_test --num-frames 33; then
     SMOKE=passed
 else
     SMOKE=failed
@@ -744,13 +744,13 @@ def setup_ami(
         stream_setup_log_tail(cfg)
         click.echo(f"\nInstance preserved for inspection: {instance_id}")
         click.echo(
-            f"SSH: ssh -i <your-keypair.pem> ubuntu@<public-ip>"
+            "SSH: ssh -i <your-keypair.pem> ubuntu@<public-ip>"
         )
         sys.exit(1)
 
     if smoke_only:
         click.echo("\n[smoke-only] stopping here. To capture the AMI later:")
-        click.echo(f"  python -m insta_influencer.ec2.setup_ami --bake-ami {instance_id}")
+        click.echo(f"  python -m reel_forge.ec2.setup_ami --bake-ami {instance_id}")
         return
 
     # Step 7: AMI capture

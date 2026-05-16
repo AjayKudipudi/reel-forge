@@ -1,4 +1,4 @@
-"""`insta cleanup` — retention policy."""
+"""`forge cleanup` — retention policy."""
 from __future__ import annotations
 
 import shutil

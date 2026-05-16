@@ -8,9 +8,9 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from insta_influencer.ec2.models._base import PoseExtractor
-from insta_influencer.ec2.models.factory import get_pose_extractor
-from insta_influencer.ec2.models.fake import FakePoseExtractor
+from reel_forge.ec2.models._base import PoseExtractor
+from reel_forge.ec2.models.factory import get_pose_extractor
+from reel_forge.ec2.models.fake import FakePoseExtractor
 
 
 def test_fake_extractor_satisfies_protocol() -> None:

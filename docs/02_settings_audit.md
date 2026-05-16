@@ -169,11 +169,11 @@ manual alpha-blend on the output. This is what AUTOMATIC1111 webui's
 
 | Setting | File |
 |---|---|
-| Generation CFG, steps, shift, size, prompts | `insta_influencer/ec2/models/steadydancer.py` (single-chunk CLI args) and `ec2/inference/generate_dancer_chunked.py` (daemon spec) |
-| Pose dual-pass | `insta_influencer/ec2/models/dwpose.py` |
-| RIFE flags | `insta_influencer/ec2/phases/interp.py` |
-| GFPGAN alpha, sharpness gate, noise patch | `insta_influencer/ec2/phases/face_restore.py` |
-| Reels format | `insta_influencer/ec2/phases/reels_format.py` |
-| Positive / negative prompts | `insta_influencer/data/prompts/animate.py` |
-| Marker + output guards | `insta_influencer/ec2/orchestrator.py` (`_PHASE_OUTPUT_CHECKS`) |
-| FSR enable / wait / disable | `insta_influencer/ec2/launch.py` (`enable_fsr`, `disable_fsr`) |
+| Generation CFG, steps, shift, size, prompts | `reel_forge/ec2/models/steadydancer.py` (single-chunk CLI args) and `ec2/inference/generate_dancer_chunked.py` (daemon spec) |
+| Pose dual-pass | `reel_forge/ec2/models/dwpose.py` |
+| RIFE flags | `reel_forge/ec2/phases/interp.py` |
+| GFPGAN alpha, sharpness gate, noise patch | `reel_forge/ec2/phases/face_restore.py` |
+| Reels format | `reel_forge/ec2/phases/reels_format.py` |
+| Positive / negative prompts | `reel_forge/data/prompts/animate.py` |
+| Marker + output guards | `reel_forge/ec2/orchestrator.py` (`_PHASE_OUTPUT_CHECKS`) |
+| FSR enable / wait / disable | `reel_forge/ec2/launch.py` (`enable_fsr`, `disable_fsr`) |

@@ -1,4 +1,4 @@
-"""`insta post` — copy / reveal / (future) Instagram Graph API publish."""
+"""`forge post` — copy / reveal / (future) Instagram Graph API publish."""
 from __future__ import annotations
 
 import shutil

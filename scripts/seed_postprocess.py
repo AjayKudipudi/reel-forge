@@ -25,8 +25,8 @@ from pathlib import Path
 
 import boto3
 
-from insta_influencer.config import get_config
-from insta_influencer.core import keys as K
+from reel_forge.config import get_config
+from reel_forge.core import keys as K
 
 
 def main() -> None:
@@ -48,7 +48,7 @@ def main() -> None:
         s3.head_object(Bucket=cfg.S3_BUCKET, Key=manifest_key)
     except Exception as e:
         print(f"manifest not found on S3 at {manifest_key}: {e}", file=sys.stderr)
-        print(f"(run `insta prepare ...` first, then `insta generate` once to upload the manifest)", file=sys.stderr)
+        print("(run `forge prepare ...` first, then `forge generate` once to upload the manifest)", file=sys.stderr)
         sys.exit(1)
 
     # 1. Downsample 60fps -> 16fps proxy.
@@ -94,7 +94,7 @@ def main() -> None:
         except Exception as e:
             print(f"[3b] marker delete (best-effort): {marker_key} -> {e}")
 
-    # 4. Reset status.json to PREPARED so `insta generate` accepts the job.
+    # 4. Reset status.json to PREPARED so `forge generate` accepts the job.
     status_local = work / K.STATUS
     if status_local.exists():
         d = json.loads(status_local.read_text())
@@ -120,14 +120,14 @@ def main() -> None:
         Key=K.s3_status_key(cfg.S3_PREFIX, args.job),
         Body=json.dumps(d, indent=2).encode(),
     )
-    print(f"[4/4] state reset to PREPARED (local + S3)")
+    print("[4/4] state reset to PREPARED (local + S3)")
 
     print()
-    print(f"Ready. Launch the postprocess-only spot with:")
-    print(f"  insta generate --job {args.job}")
+    print("Ready. Launch the postprocess-only spot with:")
+    print(f"  forge generate --job {args.job}")
     print()
-    print(f"Expected wall time: ~25 min (FSR + cloud-init + interp + face_restore + audio + reels).")
-    print(f"Expected cost: ~$0.40-0.60.")
+    print("Expected wall time: ~25 min (FSR + cloud-init + interp + face_restore + audio + reels).")
+    print("Expected cost: ~$0.40-0.60.")
 
 
 if __name__ == "__main__":

@@ -325,7 +325,7 @@ class SteadyDancerModel:
                 stream_to_log=stream_log,
                 args=[
                     "-m",
-                    "insta_influencer.ec2.inference.generate_dancer_chunked",
+                    "reel_forge.ec2.inference.generate_dancer_chunked",
                     str(spec_path),
                 ],
                 cwd=UPSTREAM_REPO_DIR,

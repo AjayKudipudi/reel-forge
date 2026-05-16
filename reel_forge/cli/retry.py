@@ -1,4 +1,4 @@
-"""`insta retry` — re-queue a failed_recoverable job."""
+"""`forge retry` — re-queue a failed_recoverable job."""
 from __future__ import annotations
 
 import sys

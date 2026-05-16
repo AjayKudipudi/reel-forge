@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from insta_influencer.core.storage import LocalObjectStore
+from reel_forge.core.storage import LocalObjectStore
 
 
 def test_upload_download_roundtrip(tmp_path: Path) -> None:
