@@ -1,0 +1,129 @@
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.so
+*.egg
+*.egg-info/
+*.whl
+build/
+dist/
+develop-eggs/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ── Virtualenv ─────────────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# ── Secrets / environment ──────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+.env.bak
+*.pem
+*.key
+*.p12
+secrets.toml
+secrets.json
+credentials.json
+
+# ── IDE / editor ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+.fleet/
+
+# ── OS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.bak
+*.tmp
+*~
+
+# ── Testing / coverage ─────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# ── Type / lint caches ─────────────────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.dmypy.json
+dmypy.json
+
+# ── Jupyter ────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Logs ───────────────────────────────────────────────────────────────────
+*.log
+logs/
+log/
+
+# ── ML / model weights / caches ────────────────────────────────────────────
+hf-cache/
+.cache/
+*.pth
+*.safetensors
+*.ckpt
+*.bin
+*.onnx
+*.gguf
+train_log/*.pkl
+*.pkl
+
+# ── Project-specific ───────────────────────────────────────────────────────
+volumes/
+influencer/
+build/*.tar.gz
+*_proxy.mp4
+/tmp/*.mp4
+output/
+outputs/
+tmp/
+
+# ── Misc ───────────────────────────────────────────────────────────────────
+*.orig
+.direnv/
+node_modules/
+
+# Personal IDE / Claude Code local config
+.claude/
+.claude/settings.local.json
+
+# SSH keys and certificates (defense in depth)
+*.pem
+*.pub
+id_rsa*
+id_ed25519*
+
+# User's reference photos (don't ship personal images)
+influencer/

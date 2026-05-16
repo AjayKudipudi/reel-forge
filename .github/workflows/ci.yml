@@ -1,0 +1,29 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-type-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .[dev]
+      - name: ruff
+        run: ruff check insta_influencer tests
+      - name: mypy
+        run: mypy insta_influencer
+      - name: pytest
+        run: pytest tests/unit tests/contract tests/integration -q
+        env:
+          # Minimum env so Config validates in CI
+          HF_TOKEN: dummy-ci-token
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          STORAGE_BACKEND: local
+          ANIMATE_FAKE: "1"

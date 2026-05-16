@@ -1,0 +1,109 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "insta-influencer"
+version = "0.1.0"
+description = "Automated Instagram Reels generation using SteadyDancer-14B"
+requires-python = ">=3.11"
+authors = [{ name = "Venkat Ajay K" }]
+dependencies = [
+    "pydantic>=2.7",
+    "pydantic-settings>=2.2",
+    "structlog>=24.1",
+    "click>=8.1",
+    "python-dotenv>=1.0",
+    "boto3>=1.34",
+    "yt-dlp>=2024.05",
+    "Pillow>=10.0",
+    "imageio[ffmpeg]>=2.34",
+    "imageio-ffmpeg>=0.5",
+    "numpy>=1.26",
+    "psutil>=5.9",
+    "nvidia-ml-py>=12.0",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+ec2 = [
+    "torch>=2.5,<2.8",
+    "torchvision",
+    "diffusers>=0.36,<0.40",
+    "transformers>=4.46",
+    "accelerate>=0.34",
+    "huggingface_hub>=0.26",
+    "safetensors",
+    "gguf>=0.13",
+    "onnxruntime-gpu",
+    "opencv-python-headless>=4.9,<4.13",
+    "einops>=0.7",
+    "decord>=0.6",
+    "moviepy>=2.0",
+    "av>=11",
+    "easydict",
+    "ftfy",
+    "dashscope",
+    "numpy>=1.26,<2",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pre-commit>=3.6",
+    "types-Pillow",
+    "types-psutil",
+    "boto3-stubs[s3,ec2]>=1.34",
+]
+
+[project.scripts]
+insta = "insta_influencer.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["insta_influencer*"]
+
+[tool.setuptools.package-data]
+insta_influencer = ["data/prompts/*.txt"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "S", "RUF"]
+ignore = [
+    "S101",  # asserts allowed in our code
+    "S603",  # subprocess without shell=True is fine; we wrap in run_tool
+    "S607",  # ditto, partial path
+    "B008",  # function call in argument default - common Click pattern
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["yt_dlp.*", "imageio.*", "imageio_ffmpeg.*", "PIL.*",
+          "structlog.*", "pynvml.*", "boto3.*", "botocore.*",
+          "diffusers.*", "transformers.*", "torch.*", "torchvision.*",
+          "gguf.*", "huggingface_hub.*", "onnxruntime.*", "click.*",
+          # Runtime-only: cloned to /opt/.../third_party/SteadyDancer at AMI bake time.
+          "steadydancer.*", "preprocess.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+# Default run excludes `smoke` tests: they require a real GPU + AWS creds.
+# Run them explicitly with `pytest -m smoke` on the EC2 AMI bake host.
+addopts = "-q --strict-markers -m 'not smoke'"
+markers = [
+    "smoke: requires GPU + AWS credentials (deselected by default; opt in with `-m smoke`)",
+]
+testpaths = ["tests"]

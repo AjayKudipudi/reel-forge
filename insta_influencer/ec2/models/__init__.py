@@ -1,0 +1,1 @@
+"""AnimationModel + PoseExtractor protocols + impls."""
