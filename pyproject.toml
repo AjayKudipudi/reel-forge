@@ -99,7 +99,8 @@ module = ["yt_dlp.*", "imageio.*", "imageio_ffmpeg.*", "PIL.*",
           "diffusers.*", "transformers.*", "torch.*", "torchvision.*",
           "gguf.*", "huggingface_hub.*", "onnxruntime.*", "click.*",
           # Runtime-only: cloned to /opt/.../third_party/SteadyDancer at AMI bake time.
-          "steadydancer.*", "preprocess.*"]
+          "steadydancer.*", "preprocess.*",
+          "gfpgan.*", "cv2.*", "skvideo.*", "basicsr.*", "facexlib.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

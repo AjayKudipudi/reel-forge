@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
+from typing import Any
 
 from ...core import keys as K
 from ...core.errors import classify
@@ -74,7 +75,7 @@ def _gfpgan_available() -> tuple[bool, str]:
     return True, ""
 
 
-def _build_restorer():
+def _build_restorer() -> Any:
     """Construct GFPGANer + monkey-patch StyleGAN2 forward to disable
     `randomize_noise`. The default `randomize_noise=True` injects fresh
     Gaussian noise on every call, producing per-frame variation in skin
@@ -83,7 +84,7 @@ def _build_restorer():
     and arch='clean' forward defaults to True), so we replace the forward
     method on the loaded module.
     """
-    from gfpgan import GFPGANer  # type: ignore[import-not-found]
+    from gfpgan import GFPGANer
 
     restorer = GFPGANer(
         model_path=str(GFPGAN_WEIGHTS),
@@ -95,12 +96,12 @@ def _build_restorer():
     _orig_forward = restorer.gfpgan.forward
 
     def _stable_forward(
-        x,
+        x: Any,
         return_latents: bool = False,
         return_rgb: bool = True,
         randomize_noise: bool = False,  # forced off — see docstring above
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> Any:
         return _orig_forward(
             x,
             return_latents=return_latents,
@@ -112,7 +113,7 @@ def _build_restorer():
     return restorer
 
 
-def _restore_video(src: Path, dst: Path, tmp_dir: Path) -> dict:
+def _restore_video(src: Path, dst: Path, tmp_dir: Path) -> dict[str, Any]:
     """Decode src → PNG frames, GFPGAN-restore each frame with natural
     alpha-blend + sharpness gate + temporal-stable noise, re-encode to
     dst. Returns stats dict.
