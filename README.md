@@ -1,4 +1,4 @@
-# insta-influencer
+# reel-forge
 
 **AI-driven Instagram Reels generator.** Take a photo of a person and a reference Reel — get back a Reel where that person performs the same dance, in your chosen output format, ready to post.
 
@@ -48,7 +48,7 @@ See `docs/00_overview.md` and `docs/02_implementation_plan.md` for the full desi
 
 ```bash
 git clone https://github.com/AjayKudipudi/reel-forge.git
-cd insta-influencer
+cd reel-forge
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env   # fill in HF_TOKEN, AWS creds, EC2_AMI_ID, etc.
@@ -72,10 +72,10 @@ python -m reel_forge generate
 python scripts/setup_ami.py
 
 # Per-job:
-insta prepare --video <reel.mp4> --photo <portrait.jpg>
-insta generate
-insta status
-insta post --job-id <id>
+forge prepare --video <reel.mp4> --photo <portrait.jpg>
+forge generate
+forge status
+forge post --job-id <id>
 ```
 
 ---
@@ -83,15 +83,15 @@ insta post --job-id <id>
 ## CLI
 
 ```
-insta prepare    build job manifest from a reference Reel + photo
-insta generate   launch spot GPU, animate, download
-insta status     show job table with state + heartbeat
-insta logs       tail S3 logs for a job
-insta retry      re-queue a recoverable failure
-insta cancel     mark a job cancelled
-insta post       copy finished Reel to ready/ for upload
-insta cleanup    enforce retention policy
-insta stats      aggregate cost + runtime per job
+forge prepare    build job manifest from a reference Reel + photo
+forge generate   launch spot GPU, animate, download
+forge status     show job table with state + heartbeat
+forge logs       tail S3 logs for a job
+forge retry      re-queue a recoverable failure
+forge cancel     mark a job cancelled
+forge post       copy finished Reel to ready/ for upload
+forge cleanup    enforce retention policy
+forge stats      aggregate cost + runtime per job
 ```
 
 ---
