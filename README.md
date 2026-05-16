@@ -1,5 +1,13 @@
 # reel-forge
 
+[![CI](https://github.com/AjayKudipudi/reel-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/AjayKudipudi/reel-forge/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: ruff](https://img.shields.io/badge/lint-ruff-blueviolet)](https://github.com/astral-sh/ruff)
+[![Types: mypy](https://img.shields.io/badge/types-mypy-blue.svg)](http://mypy-lang.org/)
+
+> AI dance-video generator for Instagram Reels — SteadyDancer-14B + Practical-RIFE + GFPGAN on AWS spot GPUs.
+
 **AI-driven Instagram Reels generator.** Take a photo of a person and a reference Reel — get back a Reel where that person performs the same dance, in your chosen output format, ready to post.
 
 Built around [SteadyDancer-14B](https://huggingface.co/MCG-NJU/SteadyDancer-14B) for pose-conditioned video generation, with RIFE for frame interpolation, GFPGAN for face restoration, and an AWS EC2 spot orchestration layer for cost-effective GPU inference.
@@ -119,6 +127,21 @@ See `docs/` for the working design docs and open items. Highlights:
 - SteadyDancer-14B is research code — quality varies by reference Reel composition, occlusion, and lighting.
 
 ---
+
+
+
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the
+local development setup, branch flow, and code-style guide. Good places to
+start:
+
+- Browse [`good-first-issue`](https://github.com/AjayKudipudi/reel-forge/labels/good-first-issue) labelled issues
+- Browse [`help-wanted`](https://github.com/AjayKudipudi/reel-forge/labels/help-wanted) for larger tasks
+- Ask in [GitHub Discussions](https://github.com/AjayKudipudi/reel-forge/discussions) for design questions
+
+Security issues: see [SECURITY.md](SECURITY.md). Community standards:
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
 
