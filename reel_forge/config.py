@@ -24,7 +24,7 @@ class Config(BaseSettings):
     )
 
     # ── Secrets ──────────────────────────────────────────────────────────
-    HF_TOKEN: str
+    HF_TOKEN: str = ""
     # AWS keys are optional: on EC2 with an IAM instance profile attached,
     # boto3 fetches credentials from IMDS automatically. Local dev MUST
     # provide them via .env or the shell.
