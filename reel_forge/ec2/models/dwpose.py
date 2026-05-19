@@ -10,6 +10,12 @@ Args we use (verified against MCG-NJU/SteadyDancer main):
   --align_frame 0         # use frame 0 of driving video to align scale
 
 mmcv/mmpose/mmdet are required (built into the AMI).
+
+FPS normalization: SteadyDancer outputs at a fixed 16 fps. If we feed 30
+or 60 fps source at native fps, 81 pose frames cover less real time than
+the model plays them back — producing slow-motion output. We resample
+the driving video to 16 fps before invoking pose_align.py so the pose
+track has the temporal density the model expects.
 """
 from __future__ import annotations
 
@@ -72,6 +78,29 @@ class DwPoseExtractor:
         pose_dir.mkdir(parents=True, exist_ok=True)
         pose_video = pose_dir / "aligned_pose.mp4"
         overlay_path = work_dir / "pose_overlay.mp4"
+
+        # Resample driving video to 16 fps. The model outputs at fixed 16 fps;
+        # feeding 30/60 fps source at native fps makes 81 pose frames cover
+        # less real time than the model plays them back, producing slow-motion
+        # output. -vsync cfr forces constant frame rate via duplication/drop
+        # (vs the default vfr which would preserve irregular timestamps and
+        # break frame-index lookup downstream). -an strips audio; the
+        # audio_attach phase reads from the ORIGINAL reference.mp4, not this
+        # resampled copy. Use -vsync cfr instead of -fps_mode cfr for ffmpeg
+        # 4.x compatibility (the AMI ships ffmpeg 4.x; -fps_mode is 5.0+).
+        normalized = work_dir / "driving_16fps.mp4"
+        run_tool(
+            FFMPEG,
+            [
+                "-hide_banner", "-loglevel", "error",
+                "-y", "-i", str(driving_video),
+                "-r", "16",
+                "-vsync", "cfr",
+                "-an",
+                str(normalized),
+            ],
+        )
+        driving_video = normalized
 
         env = os.environ.copy()
         env["PYTHONPATH"] = f"{UPSTREAM_REPO_DIR}:{UPSTREAM_REPO_DIR / 'preprocess'}"

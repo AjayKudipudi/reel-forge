@@ -143,6 +143,66 @@ the final 1080x1920 Reel comes from Lanczos upscale in `reels_format`
 plus RIFE interpolation in `interp`, not from generating at higher
 resolution.
 
+**2026-05-19 hard-failure confirmation**: re-tested `--size 720*1280`
+with our improved config (`sample_steps=50`, `condition_guide_scale=1.5`,
+`end_cond_cfg=0.6`) hoping the extra pixel area would resolve the
+folded-finger melt artifact (§1.7-1.8). The spot OOM'd on the L40S
+48 GB at sampling step 0:
+
+```
+torch.OutOfMemoryError: CUDA out of memory.
+Tried to allocate 3.16 GiB. GPU has 44.39 GiB total, 1.30 GiB free.
+Process is using 43.09 GiB.
+```
+
+L40S has 48 GB nominal but only ~44.4 GiB usable (CUDA driver reserves
+the rest). At 720x1280 (+56% pixel area = +56% latent tokens), peak VRAM
+during DiT self-attention exceeds the 44 GiB budget. `offload_model=True`
+already pushes T5 + CLIP to CPU after encoding; the DiT itself stays on
+GPU for sampling and cannot be further offloaded without major upstream
+changes. **576x1024 is the practical resolution ceiling on L40S 48 GB
+for this model at our config.** The folded-finger melt artifact remains
+an accepted limitation — it requires either (a) a larger GPU
+(H100/H200), or (b) a hand-specific post-process step.
+
+### 1.7 Driving video must be 16 fps; native-fps source produces slow-motion output
+
+SteadyDancer outputs at a fixed 16 fps (`wan/configs/shared_config.py`
+`sample_fps=16`) and consumes exactly 81 pose JPGs per inference. If the
+pose track is extracted from a 30 / 60 fps source at native fps, those
+81 JPGs cover only `81 / source_fps` seconds of real motion — the model
+then plays them back at 16 fps over `81 / 16 = 5.06` s, stretching
+motion across more time than it occupied in the source.
+
+| Source fps | Real seconds in 81 JPGs | Model playback duration | Effective speed |
+|---|---|---|---|
+| 16 (upstream demos / X-Dance) | 5.06 | 5.06 | 100 % (real-time) |
+| 30 (typical Instagram Reel) | 2.7 | 5.06 | 53 % (slow motion) |
+| 60 (some Reels) | 1.35 | 5.06 | 27 % (extreme slow motion) |
+
+Symptom: the dance feels too slow, and because consecutive output
+frames see very little pose change, the motion reads as "stuck-y."
+Upstream demos never showed this because their training data (X-Dance)
+and demo source clips are 16 fps natively.
+
+Fix: `DwPoseExtractor.extract_aligned` resamples the driving video to
+16 fps with `ffmpeg -r 16 -fps_mode cfr -an` to `driving_16fps.mp4`
+before either `pose_align.py` or `pose_align_withdiffaug.py` is
+invoked. The audio_attach phase still reads audio from the original
+`reference.mp4`, so audio sync is unaffected. See Bug 48.
+
+### 1.8 RIFE target fps tracks source fps (not hardcoded 60)
+
+Companion change to 1.7. RIFE was previously hardcoded to output 60 fps
+regardless of source. Now `interp.py:_detect_target_fps` reads the
+source reel's fps via ffprobe and clamps to `[16, 60]`. A 30 fps Reel
+produces 30 fps output (RIFE multi=2); a 60 fps source produces 60 fps
+output (multi=4); a ~16 fps source skips RIFE entirely. Lower multi
+means fewer RIFE hallucinations on fast hand motion (the limitation in
+§1.2), and the output fps matches what the user uploaded (Instagram-
+native feel, no wasted interpolation work that the platform would
+resample away on playback).
+
 ---
 
 ## 2. Post-process findings

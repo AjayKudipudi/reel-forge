@@ -102,8 +102,44 @@ is a 1/60 s hard cut (~17 ms), below the threshold of perception.
 
 RIFE requires explicit `--multi=ceil(target_fps / source_fps)`. The
 `--fps` flag alone does not change the multiplier; without
-`--multi=4`, RIFE produces only 2x the source frames stamped at the
+`--multi`, RIFE produces only 2x the source frames stamped at the
 target fps, halving the output duration.
+
+The RIFE `target_fps` is **derived from the source reel's native fps**
+(read via ffprobe in `interp.py:_detect_target_fps`) and clamped to
+`[16, 60]`. A 30-fps Reel produces 30-fps output (multi=2); a 60-fps
+source produces 60-fps output (multi=4); a ~16-fps source skips RIFE
+entirely (the `_interp_one` passthrough branch). Tracking the source
+fps gives Instagram-native output, uses the lowest viable RIFE
+multiplier (fewer hallucinations on fast hand motion), and avoids
+wasted interpolation work that Instagram would resample away on
+playback.
+
+---
+
+## 4a. Driving video FPS normalization (pre-pose-extract)
+
+SteadyDancer outputs at a fixed 16 fps (`wan/configs/shared_config.py`
+`sample_fps=16`). The first-frame pose-condition track that
+`generate_dancer.py` consumes (81 JPGs from `pose/0000.jpg` upward) is
+played back by the model at that 16 fps regardless of the source
+video's native fps. If the source is 30 fps and we feed `pose_align.py`
+the source at native fps, 81 pose JPGs cover only `81 / 30 = 2.7` s of
+real-time motion — the model stretches that across `81 / 16 = 5.06` s,
+producing slow-motion output. 60 fps source gets ~27% playback speed,
+which reads as "stuck-y" because consecutive output frames see almost
+no source-pose change.
+
+`DwPoseExtractor.extract_aligned` (`ec2/models/dwpose.py`) resamples
+the driving video to 16 fps via `ffmpeg -r 16 -fps_mode cfr -an` before
+either `pose_align.py` or `pose_align_withdiffaug.py` sees it. The
+audio_attach phase reads from the **original** `reference.mp4`, not
+the resampled `driving_16fps.mp4`, so audio sync is unaffected.
+
+This is the same implicit assumption upstream's X-Dance training and
+README demos rely on — their source clips are 16 fps natively, so the
+normalization step is invisible there. The model is fundamentally a
+16-fps consumer.
 
 ---
 

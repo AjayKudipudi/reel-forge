@@ -77,6 +77,7 @@ defaults.
 |---|---|---|
 | Dual-pass extraction | `pose_align.py` + `pose_align_withdiffaug.py` | Paper DC-CFG requires both a positive pose folder (`cond_pos_folder`) and a "negative" augmented-pose folder (`cond_neg_folder`) for the conditional/null branches |
 | `--max_frame` | **500** | Sized for up to 6 chunks (6 x 81 = 486 frames, + headroom). Pose extraction caps at `min(max_frame, source_frames)` |
+| Driving video fps (before pose_align) | **16** | Model output is fixed 16 fps (`wan/configs/shared_config.py` `sample_fps=16`). Feeding source at native 30/60 fps produced slow-motion output (Bug 48). `dwpose.py:extract_aligned` resamples via `ffmpeg -r 16 -fps_mode cfr -an` to `driving_16fps.mp4` before either pose_align script reads the video |
 | Yolox checkpoint | `yolox_l_8x8_300e_coco.pth` | mmdetection release URL; baked into the AMI |
 | DWPose checkpoint | `dw-ll_ucoco_384.pth` | HuggingFace `yzd-v/DWPose` |
 
@@ -87,8 +88,8 @@ defaults.
 | Setting | Value | Authority |
 |---|---|---|
 | RIFE model version | **v4.26** | Most recent stable release at integration time. Apache-2.0-compatible MIT license |
-| `--multi` | **4** | Derivation: `ceil(target_fps / source_fps) = ceil(60 / 16) = 4`. **Mandatory** — without explicit `--multi`, RIFE defaults to 2 regardless of `--fps`, producing half-duration output (1.88x fast-forward observable in playback) |
-| `--fps` | **60** | Final Reels-target frame rate. Smoother than the 16 fps native or 30 fps interp |
+| `--multi` | **`ceil(target_fps / 16)`** | Derived per-job from source reel fps (30 fps → 2, 60 fps → 4). **Mandatory** — without explicit `--multi`, RIFE defaults to 2 regardless of `--fps`, producing half-duration output (1.88x fast-forward observable in playback, Bug 42) |
+| `--fps` (target) | **source reel fps, clamped to [16, 60]** | Tracks the user's source reel (Instagram-native output). 16 fps lower bound avoids playback judder; 60 fps upper bound caps RIFE multiplier and file size. Was previously hardcoded 60 — caused over-interpolation on 30 fps source, amplifying RIFE hallucinations on fast hand motion. When target ≤ 16, RIFE is skipped entirely (passthrough copy) |
 | Per-chunk interp | **enabled** | Interpolating each chunk separately before concatenation avoids flow-based artefacts across the F6 re-anchor boundary |
 
 RIFE replaced `ffmpeg minterpolate` (both `mci:aobmc:vsbmc=1` and

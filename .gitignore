@@ -127,3 +127,6 @@ id_ed25519*
 
 # User's reference photos (don't ship personal images)
 influencer/
+
+# Local test inputs + comparison outputs from the dev loop (photos/reels)
+model/

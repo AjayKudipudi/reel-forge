@@ -473,3 +473,46 @@ invoking the orchestrator; a manual SSH `nohup` launch does not.
 **Proper fix (pending)**: default `HF_TOKEN=""` in Config. `HF_TOKEN`
 is only needed for the cloud-init SteadyDancer-14B download; once
 the AMI is re-baked to include the model, it is not needed at all.
+
+### Bug 48 — Raw model output looked slow-motion / stuck-y on 30 fps source reels
+
+**Symptom**: end-to-end output dance played at ~half speed compared to
+the source choreography, and consecutive frames looked nearly identical
+("stuck-y"). The defect was visible in `animated.mp4` (raw 16 fps
+generation, pre-RIFE, pre-GFPGAN) — so neither interpolation nor face
+restoration was the cause. Comparing to upstream MCG-NJU/SteadyDancer
+README demos: their outputs play at real-time speed.
+
+**Root cause**: SteadyDancer outputs at a fixed 16 fps and consumes
+exactly 81 pose JPGs per inference. We were feeding `pose_align.py` the
+source mp4 at its native fps (30 fps for typical Instagram Reels). The
+resulting `pose/0000.jpg` … `pose/0080.jpg` covered only `81 / 30 = 2.7`
+real-time seconds of source motion. The model then played those 81
+poses back at 16 fps over 5.06 s — a 53 % playback speed, i.e.
+slow motion. 60 fps source gave ~27 % speed.
+
+Upstream demos hid this because their training data (X-Dance) and demo
+source clips are 16 fps natively; the assumption was implicit. Our
+pipeline never normalized source fps anywhere — `reel_fetcher.py`
+downloads via yt-dlp at native fps, `dwpose.py` passed the mp4 to
+`pose_align.py` untouched, and `pose_align.py` preserved source fps in
+its output video.
+
+**Fix**: `DwPoseExtractor.extract_aligned` (`ec2/models/dwpose.py`)
+resamples the driving video to 16 fps with
+`ffmpeg -r 16 -fps_mode cfr -an` to `driving_16fps.mp4` before either
+`pose_align.py` or `pose_align_withdiffaug.py` reads it. The audio
+strip (`-an`) is safe because `audio_attach` reads from the original
+`reference.mp4`. CFR (`-fps_mode cfr`) is required so frame-index lookup
+downstream works on uniform timestamps.
+
+Companion change: RIFE target fps was hardcoded to 60. After the input
+resample, the right move is to track the source reel's native fps so
+output feels Instagram-native and uses the lowest RIFE multiplier
+needed. `interp.py:_detect_target_fps` now returns
+`min(max(src_fps, 16), 60)` instead of `max(src_fps, 60)`, and
+`_interp_one` short-circuits to a passthrough copy when target ≤ 16
+(model output is already 16 fps).
+
+See `docs/03_findings_and_limitations.md` §1.7 and §1.8 for the
+end-to-end frame-rate handling story.

@@ -42,11 +42,16 @@ def _classify_generate(_rc: int, _out: str, err: str) -> ErrorClass:
 GENERATE_DANCER_TOOL = ToolSpec(
     name="generate_dancer.py",
     binary=sys.executable,
-    # Match AnimatePhase.timeout_s — the phase wrapper protects us. Earlier
-    # value of 3600 was tighter than the phase timeout and pre-empted it,
-    # SIGKILLing generate_dancer.py at exactly 60 min while it was still
-    # mid-T5-prompt-encoding on CPU.
-    timeout_s=5400,
+    # Match AnimatePhase.timeout_s = 12600 (3.5 h). Prior value 5400 (90 min)
+    # was tighter than the phase wrapper and SIGKILLed generate_dancer.py at
+    # 89:13 mid-cleanup AFTER it had logged "Finished." and written
+    # animated.mp4 locally — but BEFORE the orchestrator could upload it to
+    # S3. The mp4 was lost with the spot's EBS. Earlier comment about
+    # "3600 too tight" was the previous instance of the same bug class:
+    # the inner ffmpeg/subprocess timeout must always be >= the outer phase
+    # timeout so the phase wrapper, not the tool runner, is the one that
+    # aborts a slow run.
+    timeout_s=12600,
     classifier=_classify_generate,
 )
 
@@ -180,19 +185,46 @@ class SteadyDancerModel:
                 "--cond_neg_folder", str(pose_neg_dir),
                 "--prompt", prompt,
                 "--frame_num", str(num_frames),
-                # 576*1024 portrait — matches Instagram Reels native 9:16
-                # aspect (1080x1920 target after reels_format upscale, NO
-                # letterbox bars). Was 1024*576 landscape which produced
-                # heavy top/bottom black bars in the final Reel and made
-                # the dancer appear small.
+                # 576*1024 portrait — matches Wan2.1-I2V-14B-480P's trained
+                # pixel area (~590K). Tried 720*1280 on 2026-05-19 to improve
+                # folded-finger detail; OOM'd on L40S 48GB at sampling step 0
+                # (peak ~43 of 44GB used, no fragmentation headroom). The
+                # extra 56% pixel area pushes activations past available VRAM.
+                # Confirmed: at our current config (cfg=1.5, steps=50, end=0.6,
+                # frame_num=81), 576*1024 is the resolution ceiling on L40S.
                 "--size", "576*1024",
                 "--save_file", str(output_path),
                 "--base_seed", str(seed),
                 # Pose-condition CFG strength. README example uses 1.0; the
-                # upstream argparse default of 1.5 is too strong and amplifies
-                # pose-detector noise (spurious detections leak into output as
-                # extra people / artifacts).
-                "--condition_guide_scale", "1.0",
+                # upstream argparse default is 1.5. We were at 1.0 fearing
+                # pose-detector noise amplification — but the 2026-05-18
+                # pose_overlay diagnostic confirmed the pose track is clean
+                # even on fast-motion frames, so the original concern doesn't
+                # apply. Bumped 1.3 -> 1.5 (= upstream argparse default) on
+                # 2026-05-19 alongside sample_steps 40 -> 50: the dual fix
+                # (cfg 1.3 + end_cond_cfg 0.6) resolved the hand-melt issue
+                # but folded fingers still showed melted detail. Going to
+                # upstream's documented default + more denoising steps is
+                # the most targeted intervention for fine-finger rendering.
+                "--condition_guide_scale", "1.5",
+                # Diffusion sampling steps. Upstream i2v default is 40; bumped
+                # to 50 on 2026-05-19 for fine-detail rendering (folded fingers
+                # were melting). 25% more denoising = more compute for the
+                # detail-emergence phase (steps 30-50). Costs ~25% more wall
+                # time but the bottleneck is fine structure at the model's
+                # native 576x1024 resolution.
+                "--sample_steps", "50",
+                # DC-CFG window end. Argparse default 0.4 (paper recipe) was
+                # bumped to 0.6 after the 2026-05-18 hand-artifact debug:
+                # pose_overlay.mp4 confirmed DWPose tracks hands cleanly even
+                # on fast-motion frames, so the cause is the model not using
+                # that clean signal in late denoising. 0.4 keeps pose-aware
+                # suppression active only through steps 4-16 of 40, but hand
+                # details emerge in steps 17-40. 0.6 extends suppression
+                # through step 24 — covering the detail-emergence phase.
+                # Upstream `__init__` docstring defaults to 0.5, so 0.6 is a
+                # modest step within design intent.
+                "--end_cond_cfg", "0.6",
                 # offload_model=True moves T5 + CLIP back to CPU after their
                 # one-time encoding step, freeing VRAM before DiT is pinned to
                 # GPU for the sampling loop. DiT itself stays on GPU throughout
@@ -276,7 +308,7 @@ class SteadyDancerModel:
                 "prompt": prompt,
                 "negative_prompt": negative_prompt,
                 "sample_solver": "unipc",
-                "sample_steps": 40,
+                "sample_steps": 50,
                 "sample_shift": 5.0,
                 # Paper recipe (arxiv 2511.19320 §Implementation Details):
                 # w^txt=5.0, w^pose=1.0, DC-CFG window [0.1, 0.4]. Reverted
@@ -285,10 +317,20 @@ class SteadyDancerModel:
                 # artifacts (extra hands when "complete hands" enumerated in
                 # positive prompt; deformed fingers on fast motion). Wan2.1
                 # README also documents 6.0 only for T2V-1.3B, not I2V-14B.
+                # end_cond_cfg bumped 0.4 -> 0.6 after the 2026-05-18 hand
+                # artifact debug: pose_overlay.mp4 confirmed DWPose tracks
+                # hands cleanly even on fast frames, so the cause is the
+                # model not using that clean signal in late denoising. DC-CFG
+                # [0.1, 0.4] keeps pose-aware suppression active only through
+                # 40% of the timeline (steps 4-16 of 40), but hand details
+                # emerge in steps 17-40. Extending to 0.6 keeps suppression
+                # active through step 24, covering the detail-emergence
+                # phase. Upstream `__init__` docstring's default is 0.5, so
+                # 0.6 is a modest step within design intent.
                 "sample_guide_scale": 5.0,
-                "condition_guide_scale": 1.0,
+                "condition_guide_scale": 1.5,
                 "st_cond_cfg": 0.1,
-                "end_cond_cfg": 0.4,
+                "end_cond_cfg": 0.6,
             },
             "first_image": str(first_image_path),
             "chunks": chunks_payload,

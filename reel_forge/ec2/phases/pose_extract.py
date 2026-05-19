@@ -36,6 +36,23 @@ class PoseExtractPhase:
                 driving_video=ctx.work_dir / K.REFERENCE_VIDEO,
                 work_dir=ctx.work_dir,
             )
+            # Upload the pose-overlay debug video (skeleton drawn on top of
+            # source frames) to S3 so we can pull it down locally to inspect
+            # how DWPose actually tracked the body. The per-frame JPGs that
+            # condition the model are several hundred MB so we don't ship
+            # those; the overlay video is small and is the right artifact
+            # for diagnosing hand-tracking quality on fast-motion frames.
+            overlay = out.get("overlay_path")
+            if overlay is not None and overlay.exists():
+                try:
+                    ctx.storage.upload(
+                        overlay,
+                        f"{ctx.s3_prefix}/_runtime-logs/pose_overlay.mp4",
+                    )
+                except Exception as upload_err:
+                    ctx.logger.warning(
+                        "pose_overlay.upload_failed", err=str(upload_err),
+                    )
             return PhaseResult.ok(
                 stats={
                     "wall_s": round(time.time() - t0, 2),

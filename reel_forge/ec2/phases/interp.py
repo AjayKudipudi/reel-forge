@@ -1,13 +1,18 @@
 """Phase 3: ML-based frame interpolation from the model's native 16 fps to
-a Reels-friendly target (max(source_fps, 60)).
+the source reel's fps (clamped to [16, 60]).
 
 Default backend: **Practical-RIFE v4.25** (MIT licensed, MCG Megvii).
 RIFE replaced `ffmpeg minterpolate=mci` after the 2026-05-14 §5.16 review:
 mci hallucinated colored blobs where it couldn't resolve fast hand motion,
 and the `mi_mode=blend` fallback produced visible motion blur. RIFE
 synthesizes intermediate frames via a learned optical-flow + image-synthesis
-network — temporally coherent and artifact-free for our 4× upsample
-(16fps → 60fps).
+network — temporally coherent and artifact-free.
+
+Target fps: tracks source reel's native fps so output feels native to the
+user's input (30 fps Reel in → 30 fps out; 60 fps source → 60 fps out).
+Clamped to [16, 60]: <16 raises to 16 (Instagram judders below); >60 caps
+at 60 (RIFE multipliers + file size stay sane). Lower multi vs the prior
+hardcoded 60 means fewer fast-hand-motion artifacts when source is 30 fps.
 
 If RIFE is not installed at the expected path
 (`/opt/insta-influencer/third_party/Practical-RIFE`), the phase falls back
@@ -43,11 +48,17 @@ RIFE_WEIGHTS_DIR = Path("/opt/insta-influencer/rife-weights")
 
 
 def _detect_target_fps(ctx: PhaseContext) -> int:
-    """Read the source reel's native fps via ffprobe; return max(source_fps, 60).
+    """Read the source reel's native fps via ffprobe; return it clamped to [16, 60].
 
     The source reel is at <work_dir>/reference.mp4 (synced from S3 by the
     orchestrator before phases run). If ffprobe fails or returns nonsense,
-    fall back to 60 — Reels max, safe default for smooth motion.
+    fall back to 30 — Instagram Reels native rate, the most common case.
+
+    Clamp rationale: the model outputs at fixed 16 fps. RIFE upsamples to
+    multi*16 where multi = round(target/16). Target <16 doesn't make sense
+    (Instagram judders); target >60 wastes interpolation work because the
+    platform downsamples to 30 fps on most playback anyway, and high multi
+    values amplify RIFE artifacts on fast hand motion.
     """
     reel = ctx.work_dir / K.REFERENCE_VIDEO
     try:
@@ -61,7 +72,7 @@ def _detect_target_fps(ctx: PhaseContext) -> int:
         src_fps = round(int(num) / int(den or "1"))
     except Exception:
         src_fps = 30
-    return max(src_fps, 60)
+    return min(max(src_fps, 16), 60)
 
 
 def _rife_available() -> bool:
@@ -86,7 +97,7 @@ def _rife_one(src: Path, dst: Path, target_fps: int) -> None:
     we need multi >= ceil(60/16) = 4 so RIFE generates ~64fps of content,
     then --fps=60 resamples down to 60fps with the correct duration.
     """
-    multi = max(2, math.ceil(target_fps / 16))  # 60fps target -> multi=4
+    multi = max(2, math.ceil(target_fps / 16))  # 30fps -> 2, 60fps -> 4
     cmd = [
         "python",
         str(RIFE_REPO_DIR / "inference_video.py"),
@@ -138,6 +149,11 @@ def _ffmpeg_blend_one(src: Path, dst: Path, target_fps: int) -> None:
 
 def _interp_one(src: Path, dst: Path, target_fps: int, use_rife: bool) -> str:
     """Return the backend name actually used."""
+    # Model output is already 16 fps. If the source reel was also ~16 fps
+    # (clamp floor), we have nothing to interpolate — just copy.
+    if target_fps <= 16:
+        shutil.copy2(src, dst)
+        return "passthrough-16fps"
     if use_rife:
         try:
             _rife_one(src, dst, target_fps)
